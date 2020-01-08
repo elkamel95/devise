@@ -1,0 +1,40 @@
+.form-style{
+   padding-top: 15%;
+   height: 35%;
+
+}   
+
+.selectW{
+ width: 100px;
+}
+.montantAncien {
+font-size: small ;
+
+}
+.selectW {
+ width:100px
+}
+.bodyPosition {
+ margin-left: 0%; 
+
+}
+.commit{
+    position: absolute; /* postulat de départ */
+    top: 50%; left: 50%; /* à 50%/50% du parent référent */
+    transform: translate(-50%, -50%);
+    display: none;
+}
+@media (max-width: 800px) {
+    .commit{
+        position: absolute; /* postulat de départ */
+
+        top: 50%; left: 50%; /* à 50%/50% du parent référent */
+        transform: translate(-50%, -50%);
+        display: none;
+    }
+}
+.logout{
+    margin-left: 50%;
+color: white;
+
+}
