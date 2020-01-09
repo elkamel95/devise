@@ -8,14 +8,12 @@
             <a class="nav-link" href="index.php" onclick="valider()">échange <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="bon.php">bon</a>
+            <a class="nav-link" href="bon.php">bon échange</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="index.php?destory=yes" >Pricing</a>
+            <a class="nav-link" href="Taux.php" >Taux de Devises </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-        </li>
+
     </ul>
     <form action="index.php" class="form-inline my-0 my-lg-0 logout">
         <input type="hidden" name="destory" value="yes">
