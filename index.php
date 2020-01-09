@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require(dirname(__FILE__).'\SPDO.php');
+require('./SPDO.php');
 $msg =null;
 if(!isset( $_SESSION["user_id"])){
 
