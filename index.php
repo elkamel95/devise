@@ -53,7 +53,10 @@ $res = SPDO::getInstance();
     </nav>
 </header>
 <body class="bg-light ">
+<form action="remove.php" id="formsupp">
+    <input id="idInputsupp" type="hidden" name="idchange" value =''>
 
+</form>
 <div class="alert alert-light" role="alert">
 
 <?php
@@ -80,7 +83,7 @@ if(isset($_SESSION["client_id"])) {
             </div>
             <div class="col-md-2 " >
                 <label for="s1">code</label>
-                <select  oninput ="codeToPrix(this.value,0)" name="code"  class="form-control" id="my_select">
+                <select  oninput ="codeToPrix(this.value,0)" name="code"  class="form-control"  id="my_select">
                     <?php
                     $i=0;
                     foreach  ( $res->query('SELECT * FROM tauxdevise')  as $row)
@@ -150,7 +153,7 @@ if(isset($_SESSION["client_id"])) {
                 if(!isset($_SESSION["client_id"])) {
 
 
-    echo '      <button class ="btn btn-success"onclick="valider()">client</button>';
+    echo '      <button class ="btn btn-success"onclick="valider()">Ajouter client</button>';
 
     }      else
                 {
@@ -167,7 +170,8 @@ if(isset($_SESSION["client_id"])) {
             <table class="table">
                 <thead class="thead-light">
                 <tr>
-                    <th scope="col">#</th>
+
+                    <th scope="col"> Type de change</th>
                     <th scope="col">code</th>
                     <th scope="col">montant</th>
                     <th scope="col">prix</th>
@@ -185,15 +189,33 @@ if(isset($_SESSION["client_id"])) {
                 if(isset($_SESSION['id_bon']))
 
               {
-                  $qall = $res->query('SELECT * FROM  devise   where id_bon ='.$_SESSION['id_bon']);
+                  if($_SESSION['id_bon'] !="" )
+{
+                      $qall = $res->query('SELECT * FROM  devise   where id_bon ='.$_SESSION['id_bon']);
                 foreach  ( $qall  as $rows) {
+                    $i++;
                     echo '
 	<form action ="model.php"  method ="POST">
 
 	<tr>
-      <th scope="row">'. $i++ .'</th>
       <td>
-<select  class ="form-control selectW" oninput ="codeToPrix(this.value,'. $i .')" name="code" id="sUpdate">  
+
+                <select name="TypeEchange" id="TypeEchange" oninput="typeEchange(value, '.$i.')" class="form-control">
+                ';if($rows["type"] == "vente")
+                   {
+                       echo
+                     '  <option value="vente" selected="selected"> vante devise</option>
+                    <option value="achat"> achat devise</option>';
+}else{
+                        echo
+                        '  <option value="vente"> vante devise</option>
+                    <option value="achat"  selected="selected"> achat devise</option>';
+                }
+                echo '
+                </select>
+           </td>
+      <td>
+<select  class ="form-control selectW" oninput ="codeToPrix(this.value ,'. $i .')" name="code"  id="sUpdate">  
 ';?>
                     <?php
 
@@ -215,7 +237,6 @@ if(isset($_SESSION["client_id"])) {
                     <?php
                     $prixUpadate = 0;
                     echo '
-	
  </select> 	  
 	  </td>
 	    <td>
@@ -228,12 +249,17 @@ if(isset($_SESSION["client_id"])) {
 		  ';
                     foreach  ($res->query("SELECT prix FROM  tauxdevise  where id = ".$rows["ID_Taux"]) as $row )
                     {
-                        $prixUpadate =$row['prix'] ;
+                        if($rows["type"] == "vente")
+                            $prixUpadate = $row['prix'] ;
+
+                        else
+                            $prixUpadate = round(1/$row['prix'],3) ;
+
                         break;
                     }
 
                     echo'
-	  <input class="form-control selectW" type="number" step="0.001" value =  '. $prixUpadate.' name ="prix"/>
+	  <input class="form-control selectW" type="number" step="0.0000001" value =  '. $prixUpadate.' name ="prix"/>
 	  
 	  </td>
 	    <td>
@@ -265,17 +291,16 @@ if(isset($_SESSION["client_id"])) {
 	   
 </td>
 		<td>
-		<form action="remove.php">
-		    <input type="hidden" name="idchange" value ='.$rows["id"].'>
-	  <button type="submit" class="btn btn-danger" style="width:100%">supprimer</button>
-	  </form>
+
+	  	  <button onclick="Block(\'supp\','.$rows["id"].')"   class="btn btn-danger" style="width:100%">supprimer</button>
+
 	  </td>
 	  </tr>
 	 
 		  
 		
 	  ';
-                }}
+              }  }}
 
                 ?>
 
@@ -318,10 +343,14 @@ opération ('.$action.') terminée avec succès
         <div class ="col-md-8">
 		 		
 		 <?php
-         $total =0;
-if(isset($_SESSION['id_bon']))
 
-        {	echo 	' <span style="  margin-left: 85% ;height:30px  " class="badge badge-danger">';
+         $total =0;
+if(isset($_SESSION['id_bon']) )
+
+        {
+            if($_SESSION['id_bon'] !="" )
+{
+                echo 	' <span style="  margin-left: 85% ;height:30px  " class="badge badge-danger">';
 
 
             foreach  ( $res->query('SELECT * FROM  devise   where id_bon ='.$_SESSION['id_bon'])  as $row) {
@@ -329,7 +358,7 @@ if(isset($_SESSION['id_bon']))
          }
 
          echo'<input type="hidden" value= '.$total.' id="T"/>
- '.$total.''   ;
+ '.$total.''   ;}
 }
          ?>
 	
@@ -338,21 +367,29 @@ if(isset($_SESSION['id_bon']))
 
         </div>
         <div class ="col-md-3">
-            <form action="services/bon/DaoBonService.php">
+            <form id="formValider"  action="services/bon/DaoBonService.php">
 
                 <input type="hidden"  name ="totale" value=<?php   echo $total  ?> />
 
-                <button class="btn btn-success"  type="submit" > Valider </button>
             </form>
+            <?php
+            echo '
+                        <button onclick="Block(\'card\')" class="btn btn-primary">Valider </button>\';
+
+            ';
+            ?>
+
+
+
         </div>
     </div>
     <div class="commit center " id="commit" >
     <div class="card">
-        <h5 class="card-header">Client bon échange  <button   class="badge badge-danger" onclick="annule()"> annule</button></h5>
+        <h5 class="card-header">Client bon échange  <button   class="badge badge-danger" onclick="annule()"> annuler</button></h5>
         <div class="card-body">
-            <h5 class="card-title"> creation client </h5>
+            <h5 class="card-title"> création client </h5>
             <p class="card-text">numéro passport </p>
-            <form action="services/client/ClientService.php" method="post">
+            <form  action="services/client/ClientService.php" method="post">
                 <input type="hidden" name="Action" value="add"/>
             <input type="number" class="form-control"  name = "num" />
             <p class="card-text">Nom</p>
@@ -360,12 +397,36 @@ if(isset($_SESSION['id_bon']))
             <p class="card-text">pronom</p>
             <input type="text" class="form-control"  name = "pren" />
 
-                <button type="submit" class="btn btn-primary">Valider </button>
+                <button type="submit"  class="btn btn-primary">Valider </button>
             </form>
         </div>
     </div></div>
 </div>
 
+<div class="card text-center commit" id ="card">
+
+    <div class="card-body" >
+        <h5 class="card-title"> Message du confirmation </h5>
+        <p class="card-text">Voulez-vous sure dû confirmer tous les échanges </p>
+        <a href="#" class="btn btn-danger" onclick="hiddenBlock('card')" id="true" >annuler</a>
+
+        <a href="#" class="btn btn-primary" onclick="showBlock('card','formValider')" id="true" >Confirmer</a>
+
+    </div>
+
+</div>
+<div class="card text-center commit" id ="supp">
+
+    <div class="card-body" >
+        <h5 class="card-title"> message de suppression  </h5>
+        <p class="card-text">Voulez-vous vraiment supprimer cet échange </p>
+        <a href="#" class="btn btn-danger" onclick="hiddenBlock('supp')" id="true" >Annuler</a>
+
+        <a href="#" class="btn btn-primary" onclick="showBlock('supp','formsupp')" id="true" >Confirmer</a>
+
+    </div>
+
+</div>
 </body>
 
 <script src="js/change.js"></script>
